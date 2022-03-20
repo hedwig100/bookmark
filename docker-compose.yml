@@ -1,0 +1,19 @@
+version: "3"
+services:
+  bookmark_db:
+    container_name: bookmark_db
+    image: postgres:14.2-alpine
+    ports: 
+      - 6432:5432
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d  
+    environment:
+      POSTGRES_USER: bookmark
+      POSTGRES_PASSWORD: password
+      TZ: "Asia/Tokyo"
+    restart: always
+
+volumes:
+  db:
+    driver: local
