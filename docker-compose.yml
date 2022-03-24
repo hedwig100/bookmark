@@ -1,6 +1,17 @@
 version: "3"
+
 services:
-  bookmark_db:
+  server:
+    container_name: bookmark_server
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:9080:9080"
+    tty: true
+    restart: always
+  
+  db:
     container_name: bookmark_db
     image: postgres:14.2-alpine
     ports: 
