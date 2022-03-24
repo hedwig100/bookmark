@@ -8,7 +8,16 @@ services:
       dockerfile: Dockerfile
     ports:
       - "127.0.0.1:9080:9080"
+    environment:
+      POSTGRES_USER: bookmark
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: bookmark_db
+      POSTGRES_PORT: 6432
+    volumes:
+      - ./backend:/home/server
     tty: true
+    depends_on: 
+      - db
     restart: always
   
   db:
