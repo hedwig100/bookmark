@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	_ "github.com/hedwig100/bookmark/backend/db"
 	"github.com/hedwig100/bookmark/backend/middleware"
 )
 
@@ -17,7 +18,7 @@ func main() {
 	mux.HandleFunc("/hello", middleware.LogWrap(hello))
 
 	server := http.Server{
-		Addr:    "127.0.0.1:9080",
+		Addr:    "0.0.0.0:8081",
 		Handler: &mux,
 	}
 
