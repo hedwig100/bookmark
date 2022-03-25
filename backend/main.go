@@ -11,6 +11,7 @@ import (
 
 func hello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello World!")
+	w.WriteHeader(http.StatusOK)
 }
 
 func main() {

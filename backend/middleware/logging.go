@@ -13,7 +13,15 @@ type statusResponseWriter struct {
 	statusCode int
 }
 
-func (w statusResponseWriter) WriteHeader(statusCode int) {
+func (w *statusResponseWriter) Header() http.Header {
+	return w.ResponseWriter.Header()
+}
+
+func (w *statusResponseWriter) Write(buf []byte) (int, error) {
+	return w.ResponseWriter.Write(buf)
+}
+
+func (w *statusResponseWriter) WriteHeader(statusCode int) {
 	w.statusCode = statusCode
 	w.ResponseWriter.WriteHeader(statusCode)
 }
@@ -25,7 +33,7 @@ func LogWrap(handler http.HandlerFunc) http.HandlerFunc {
 		sw := statusResponseWriter{
 			ResponseWriter: w,
 		}
-		handler(sw, r)
+		handler(&sw, r)
 		slog.Infof("Status: %d,Header: %v)", sw.statusCode, w.Header())
 	}
 }
