@@ -9,6 +9,7 @@ services:
     ports:
       - "127.0.0.1:8081:8081"
     environment:
+      BOOKMARK_ROOT: /home/server/
       POSTGRES_USER: bookmark
       POSTGRES_PASSWORD: password
       POSTGRES_HOST: bookmark_db

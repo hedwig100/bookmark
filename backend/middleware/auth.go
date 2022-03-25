@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -18,9 +19,11 @@ var pub *rsa.PublicKey
 var pri *rsa.PrivateKey
 
 func init() {
+	// root indicates 'bookmark/backend'
+	root := os.Getenv("BOOKMARK_ROOT")
 
 	// prepare private key
-	buf, err := ioutil.ReadFile("private.pem")
+	buf, err := ioutil.ReadFile(fmt.Sprintf("%sprivate.pem", root))
 	if err != nil {
 		slog.Fatalf("cannot open private key : %v", err)
 	}
@@ -38,7 +41,7 @@ func init() {
 	slog.Info("Preparing private-key successful!")
 
 	// prepare public key
-	buf, err = ioutil.ReadFile("public.pem")
+	buf, err = ioutil.ReadFile(fmt.Sprintf("%spublic.pem", root))
 	if err != nil {
 		slog.Fatalf("cannot open public key : %v", err)
 	}
