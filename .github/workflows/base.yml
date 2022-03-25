@@ -1,0 +1,16 @@
+name: Base test
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    build:
+        runs-on: ubuntu-20.04
+        steps:
+            - uses: actions/checkout@v2
+            - name: compose-up
+              run: docker-compose up -d
+            - name: test
+              run: docker exec bookmark_server go test ./server/ -v
