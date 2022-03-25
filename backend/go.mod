@@ -2,7 +2,10 @@ module github.com/hedwig100/bookmark/backend
 
 go 1.18
 
-require github.com/jackc/pgx/v4 v4.15.0
+require (
+	github.com/golang-jwt/jwt/v4 v4.4.0
+	github.com/jackc/pgx/v4 v4.15.0
+)
 
 require (
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
