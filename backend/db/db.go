@@ -3,9 +3,9 @@ package db
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/hedwig100/bookmark/backend/slog"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -25,8 +25,7 @@ func init() {
 	var err error
 	Pool, err = pgxpool.Connect(context.Background(), url)
 	if err != nil {
-		log.Fatalf("Unable to connect to database: %v", err)
-		os.Exit(1)
+		slog.Fatalf("Unable to connect to database: %v", err)
 	}
-	log.Println("Db connection successful!")
+	slog.Info("Db connection successful!")
 }

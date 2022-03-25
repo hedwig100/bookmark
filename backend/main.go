@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	_ "github.com/hedwig100/bookmark/backend/db"
 	"github.com/hedwig100/bookmark/backend/middleware"
+	"github.com/hedwig100/bookmark/backend/slog"
 )
 
 func hello(w http.ResponseWriter, r *http.Request) {
@@ -25,6 +25,6 @@ func main() {
 	}
 
 	if err := server.ListenAndServe(); err != nil {
-		log.Fatalln(fmt.Sprintf("server listening failed %v", err))
+		slog.Fatalf("server listening failed %v", err)
 	}
 }

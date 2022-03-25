@@ -6,13 +6,12 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
 	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/hedwig100/bookmark/backend/slog"
 )
 
 var pub *rsa.PublicKey
@@ -23,51 +22,44 @@ func init() {
 	// prepare private key
 	buf, err := ioutil.ReadFile("private.pem")
 	if err != nil {
-		log.Fatalf("cannot open private key : %v", err)
-		os.Exit(1)
+		slog.Fatalf("cannot open private key : %v", err)
 	}
 
 	block, _ := pem.Decode(buf)
 	if block == nil || block.Type != "RSA PRIVATE KEY" {
-		log.Fatalf("not private key : %v", err)
-		os.Exit(1)
+		slog.Fatalf("not private key : %v", err)
 	}
 
 	pri, err = x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		log.Fatalf("cannot parse private key : %v", err)
-		os.Exit(1)
+		slog.Fatalf("cannot parse private key : %v", err)
 	}
 
-	log.Println("Preparing private-key successful!")
+	slog.Info("Preparing private-key successful!")
 
 	// prepare public key
 	buf, err = ioutil.ReadFile("public.pem")
 	if err != nil {
-		log.Fatalf("cannot open public key : %v", err)
-		os.Exit(1)
+		slog.Fatalf("cannot open public key : %v", err)
 	}
 
 	block, _ = pem.Decode(buf)
 	if block == nil || block.Type != "PUBLIC KEY" {
-		log.Fatalf("not public key : %v", err)
-		os.Exit(1)
+		slog.Fatalf("not public key : %v", err)
 	}
 
 	pub_, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
-		log.Fatalf("cannot parse public key : %v", err)
-		os.Exit(1)
+		slog.Fatalf("cannot parse public key : %v", err)
 	}
 
 	var ok bool
 	pub, ok = pub_.(*rsa.PublicKey)
 	if !ok {
-		log.Fatalf("not rsa public key : %v", err)
-		os.Exit(1)
+		slog.Fatalf("not rsa public key : %v", err)
 	}
 
-	log.Println("Preparing public key successful!")
+	slog.Info("Preparing public key successful!")
 }
 
 // GenJWT generates a JWT and returns it to the client. Redirect here after user authentication.
@@ -90,7 +82,7 @@ func GenJWT(w http.ResponseWriter, r *http.Request) {
 	})
 	tokenStr, err := token.SignedString(pri)
 	if err != nil {
-		log.Println(fmt.Sprintf("[ERROR] internal error: %v", err))
+		slog.Errf("internal error: %v", err)
 	}
 
 	// response
@@ -106,7 +98,7 @@ func Auth(handler http.HandlerFunc) http.HandlerFunc {
 		// we expect "Authorization: Bearer <token>"
 		auth, ok := r.Header["Authorization"]
 		if !ok || !strings.HasPrefix(auth[0], "Bearer ") {
-			log.Println("Authorization isn't set")
+			slog.Info("Authorization isn't set")
 			w.WriteHeader(http.StatusUnauthorized)
 		}
 		tokenStr := strings.TrimPrefix(auth[0], "Bearer ")
@@ -120,15 +112,15 @@ func Auth(handler http.HandlerFunc) http.HandlerFunc {
 				return pub, nil
 			}
 		})
-		log.Println(token)
-		log.Println(token.Claims)
+		slog.Debug(token)
+		slog.Debug(token.Claims)
 
 		if err != nil {
-			log.Println("Unauthorized: %v", err)
+			slog.Infof("Unauthorized: %v", err)
 			w.WriteHeader(http.StatusUnauthorized)
 		}
 		if err = token.Claims.Valid(); err != nil || !token.Valid {
-			log.Println("Unauthorized: %v or token isn't valid.", err)
+			slog.Infof("Unauthorized: %v or token isn't valid.", err)
 			w.WriteHeader(http.StatusUnauthorized)
 		}
 
