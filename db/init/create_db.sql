@@ -1,39 +1,39 @@
 
 CREATE TABLE users (
-    user_id INTEGER PRIMARY KEY,
-    username VARCHAR(64) NOT NULL,
+    user_id VARCHAR(128) PRIMARY KEY,
+    username VARCHAR(64) NOT NULL UNIQUE,
     password VARCHAR(128) NOT NULL
 );
 
 CREATE TABLE authors (
-    author_id INTEGER PRIMARY KEY,
+    author_id VARCHAR(128) PRIMARY KEY,
     name VARCHAR(64) NOT NULL UNIQUE
 );
 
 CREATE TABLE genres (
-    genre_id INTEGER PRIMARY KEY,
+    genre_id VARCHAR(128) PRIMARY KEY,
     name VARCHAR(128) NOT NULL UNIQUE
 );
 
 CREATE TABLE books (
-    book_id INTEGER PRIMARY KEY,
-    author_id INTEGER NOT NULL,
+    book_id VARCHAR(128) PRIMARY KEY,
+    author_id VARCHAR(128) NOT NULL,
     name VARCHAR(128) NOT NULL UNIQUE,
     FOREIGN KEY (author_id) REFERENCES authors(author_id) ON DELETE CASCADE
 );
 
 CREATE TABLE books_genres (
-    book_id INTEGER NOT NULL,
-    genre_id INTEGER NOT NULL,
+    book_id VARCHAR(128) NOT NULL,
+    genre_id VARCHAR(128) NOT NULL,
     PRIMARY KEY(book_id,genre_id),
     FOREIGN KEY (book_id) REFERENCES books(book_id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genres(genre_id) ON DELETE CASCADE
 );
 
 CREATE TABLE reads (
-    read_id INTEGER PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    book_id INTEGER NOT NULL,
+    read_id VARCHAR(128) PRIMARY KEY,
+    user_id VARCHAR(128) NOT NULL,
+    book_id VARCHAR(128) NOT NULL,
     thoughts VARCHAR(1024),
     read_at DATE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
@@ -41,8 +41,8 @@ CREATE TABLE reads (
 );
 
 CREATE TABLE follows (
-    follower_id INTEGER NOT NULL,
-    followee_id INTEGER NOT NULL,
+    follower_id VARCHAR(128) NOT NULL,
+    followee_id VARCHAR(128) NOT NULL,
     PRIMARY KEY(follower_id,followee_id),
     CHECK (followee_id <> follower_id),
     FOREIGN KEY (follower_id) REFERENCES users(user_id) ON DELETE CASCADE,
@@ -50,9 +50,9 @@ CREATE TABLE follows (
 );
 
 CREATE TABLE messages (
-    message_id INTEGER PRIMARY KEY,
-    sender_id INTEGER NOT NULL,
-    receiver_id INTEGER NOT NULL,
+    message_id VARCHAR(128) PRIMARY KEY,
+    sender_id VARCHAR(128) NOT NULL,
+    receiver_id VARCHAR(128) NOT NULL,
     content VARCHAR(1024) NOT NULL,
     send_at TIMESTAMP WITH TIME ZONE NOT NULL,
     FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE CASCADE,
@@ -60,8 +60,8 @@ CREATE TABLE messages (
 );
 
 CREATE TABLE open_messages (
-    message_id INTEGER PRIMARY KEY,
-    sender_id INTEGER NOT NULL,
+    message_id VARCHAR(128) PRIMARY KEY,
+    sender_id VARCHAR(128) NOT NULL,
     content VARCHAR(1024) NOT NULL,
     send_at TIMESTAMP WITH TIME ZONE NOT NULL,
     FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE CASCADE
