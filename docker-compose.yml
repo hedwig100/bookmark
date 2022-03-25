@@ -33,6 +33,23 @@ services:
       POSTGRES_PASSWORD: password
       TZ: "Asia/Tokyo"
     restart: always
+  
+  # for swagger
+  swagger-editor:
+    image: swaggerapi/swagger-editor
+    container_name: "bookmark-swagger-editor"
+    ports:
+      - "8082:8080"
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: "bookmark-swagger-ui"
+    ports:
+      - "8083:8080"
+    volumes:
+      - ./api/openapi.yaml:/openapi.yaml
+    environment:
+      SWAGGER_JSON: /openapi.yaml
 
 volumes:
   db:

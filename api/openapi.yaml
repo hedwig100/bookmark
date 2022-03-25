@@ -1,0 +1,48 @@
+openapi: "3.0.0"
+info:
+    description: "Bookmark is an api server"
+    version: "1.0.0"
+    title: "Bookmark"
+    termsOfService: "http://example.com"
+    contact:
+        email: "example@example.com"
+    license:
+        name: "MIT"
+servers:
+    - url: http://localhost
+      description: Development server
+paths:
+    /users:
+        post:
+            tags:
+                - users
+            summary: Create a new User
+            description: Create a new User
+            parameters: []
+            requestBody:
+                description: user to create
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/User"
+                        example:
+                            username: "Bob"
+                            password: "12345abcde"
+            responses:
+                "201":
+                    description: CREATED
+components:
+    schemas:
+        User:
+            type: object
+            required:
+                - username
+                - password
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+tags:
+    - name: users
+      description: about users
