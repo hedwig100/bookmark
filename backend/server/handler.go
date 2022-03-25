@@ -59,6 +59,12 @@ func postUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.Username == "" || user.Password == "" {
+		slog.Infof("expect valid User model")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	// generate uuid
 	user_id, err := id()
 	if err != nil {
