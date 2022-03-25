@@ -17,8 +17,8 @@ func hello(w http.ResponseWriter, r *http.Request) {
 func main() {
 	var mux http.ServeMux
 	mux.HandleFunc("/hello", middleware.LogWrap(hello))
+	mux.HandleFunc("/users", middleware.LogWrap(postUser))
 	mux.HandleFunc("/auth_test", middleware.LogWrap(middleware.Auth(hello)))
-	mux.HandleFunc("/auth", middleware.LogWrap(middleware.GenJWT))
 
 	server := http.Server{
 		Addr:    "0.0.0.0:8081",

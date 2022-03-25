@@ -62,27 +62,24 @@ func init() {
 	slog.Info("Preparing public key successful!")
 }
 
-// GenJWT generates a JWT and returns it to the client. Redirect here after user authentication.
-// Method:
-// 		GET
-// URI:
-//		/auth
-func GenJWT(w http.ResponseWriter, r *http.Request) {
+// GenJWT generates a JWT and returns it to the client.
+func GenJWT(w http.ResponseWriter, user_id string) {
 	// generate header and claims
 	// "iss" (issuer): the principal that issued the JWT.
 	// "sub" (subject): the principal that is the subject of the JWT.
 	// "exp" (expiration time): the expiration time on or after which the JWT MUST NOT be accepted for processing
 	// "iat" (issued at): the time at which the JWT was issued.
-	// TODO: use valid "sub" depending on the user
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
 		"iss": "https://localhost",
-		"sub": 1,
+		"sub": user_id,
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now(),
 	})
 	tokenStr, err := token.SignedString(pri)
 	if err != nil {
 		slog.Errf("internal error: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	// response
