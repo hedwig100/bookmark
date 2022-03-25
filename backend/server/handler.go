@@ -1,8 +1,9 @@
-package main
+package server
 
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -30,6 +31,13 @@ func id() (string, error) {
 		return "", err
 	}
 	return ret.String(), nil
+}
+
+// /hello
+// this is a test handler
+func hello(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello World!")
+	w.WriteHeader(http.StatusOK)
 }
 
 // /users

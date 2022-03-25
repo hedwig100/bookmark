@@ -1,4 +1,4 @@
-package main
+package server
 
 type User struct {
 	Username string `json:"username"`
