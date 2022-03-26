@@ -11,6 +11,9 @@ type Db interface {
 	// UserCreate receives user and return user_id and error (if any).
 	UserCreate(User) (string, error)
 
+	// Login authenticate User using password
+	Login(User) (string, error)
+
 	// ReadCreate receives username,read and return error (if any).
 	ReadCreate(string, Read) error
 }

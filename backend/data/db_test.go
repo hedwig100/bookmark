@@ -15,7 +15,13 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-func TestUserCreate(t *testing.T) {
+func TestDb(t *testing.T) {
+	t.Run("UserCreate", testUserCreate)
+	t.Run("Login", testLogin)
+	t.Run("ReadCreate", testReadCreate)
+}
+
+func testUserCreate(t *testing.T) {
 	uc := []struct {
 		user        data.User
 		expectError bool
@@ -55,7 +61,30 @@ func TestUserCreate(t *testing.T) {
 	}
 }
 
-func TestReadCreate(t *testing.T) {
+func testLogin(t *testing.T) {
+	l := []struct {
+		user        data.User
+		expectError bool
+	}{
+		{user: data.User{Username: "hedwig100", Password: "abcde12345"}, expectError: false},
+		{user: data.User{Username: "python39", Password: "1234567890"}, expectError: false},
+		{user: data.User{Username: "hedwig100", Password: "9f83o"}, expectError: true},
+		{user: data.User{Username: "fio", Password: "u3"}, expectError: true},
+	}
+	for i, td := range l {
+		t.Run(fmt.Sprintf("Login%d", i), func(t *testing.T) {
+			_, err := db.Login(td.user)
+			if td.expectError && err == nil {
+				t.Fatal("err expected")
+			}
+			if !td.expectError && err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+func testReadCreate(t *testing.T) {
 	rc := []struct {
 		username    string
 		read        data.Read

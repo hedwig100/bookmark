@@ -38,6 +38,18 @@ func (db *DbMock) UserCreate(user User) (string, error) {
 	return user_id, nil
 }
 
+func (db *DbMock) Login(user User) (string, error) {
+	for _, registeredUser := range db.users {
+		if registeredUser.Username == user.Username {
+			if err := bcrypt.CompareHashAndPassword([]byte(registeredUser.Password), []byte(user.Password)); err != nil {
+				return "", err
+			}
+			return registeredUser.UserId, nil
+		}
+	}
+	return "", fmt.Errorf("user(%s) not found", user.Username)
+}
+
 func (db *DbMock) ReadCreate(username string, read Read) error {
 	authorId := db.insertAuthor(read.AuthorName)
 	bookId := db.insertBook(authorId, read.BookName)

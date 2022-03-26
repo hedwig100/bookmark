@@ -17,6 +17,7 @@ func GetMux() http.Handler {
 	mux.POST("/users", middleware.LogWrap(postUser))
 	mux.GET("/auth_test", middleware.LogWrap(middleware.Auth(hello)))
 	mux.POST("/users/:username/books", middleware.LogWrap(middleware.Auth(read)))
+	mux.POST("/login", middleware.LogWrap(login))
 	return mux
 }
 

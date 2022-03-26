@@ -43,6 +43,36 @@ paths:
                     description: Cannot parse request body
                 "500":
                     description: Internal server error
+    /login:
+        post:
+            tags:
+                - users
+            summary: Login as a user
+            description: Login as a user
+            parameters: []
+            requestBody:
+                description: loging username and its password
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/User"
+                        example:
+                            username: "Bob"
+                            password: "12345abcde"
+            responses:
+                "200":
+                    description: OK
+                    headers:
+                        Authorization:
+                            schema:
+                                type: string
+                            example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                            description: Json Web Token for the user
+                "400":
+                    description: Cannot parse request body
+                "500":
+                    description: Internal server error (this includes not found user and using invalid password.)
+
     /users/:username/books:
         post:
             tags:

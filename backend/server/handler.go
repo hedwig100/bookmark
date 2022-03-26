@@ -64,6 +64,43 @@ func postUser(w http.ResponseWriter, r *http.Request) {
 
 	// generate JWT and send it to client
 	middleware.GenJWT(w, user_id, user.Username)
+	w.WriteHeader(http.StatusCreated)
+}
+
+// /login
+// POST
+func login(w http.ResponseWriter, r *http.Request) {
+	// read request body
+	body, err := readBody(r)
+	if err != nil {
+		slog.Infof("error while parsing request body: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var user data.User
+	if err = json.Unmarshal(body, &user); err != nil {
+		slog.Infof("expect User model: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if user.Username == "" || user.Password == "" {
+		slog.Infof("expect valid User model")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userId, err := Db.Login(user)
+	if err != nil {
+		slog.Errf("internal server error: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// generate JWT and send it to client
+	middleware.GenJWT(w, userId, user.Username)
+	w.WriteHeader(http.StatusOK)
 }
 
 // /users/:username/books
