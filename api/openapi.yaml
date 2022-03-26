@@ -18,6 +18,8 @@ paths:
                 - users
             summary: Create a new User
             description: Create a new User and return JWT (Json Web Token) for authorization
+            security:
+                - bearerAuth: []
             parameters: []
             requestBody:
                 description: user to create
@@ -41,6 +43,33 @@ paths:
                     description: Cannot parse request body
                 "500":
                     description: Internal server error
+    /users/{username}/books:
+        post:
+            tags:
+                - users
+                - books
+            summary: create a reading log
+            description: That user whose username is 'username' reads a book. and create a reading log.
+            parameters: []
+            requestBody:
+                description: books to create
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Read"
+                        example:
+                            bookName: "Harry Potter"
+                            authorName: "J.K. Rowling"
+                            genres: ["fantasy", "for children"]
+                            thoughts: "Voldemort scared me a lot."
+                            readAt: "2021-10-30"
+            responses:
+                "201":
+                    description: CREATED
+                "400":
+                    description: Cannot parse request body
+                "500":
+                    description: Internal server error
 
 components:
     schemas:
@@ -54,6 +83,26 @@ components:
                     type: string
                 password:
                     type: string
+        Read:
+            type: object
+            required:
+                - bookName
+                - authorName
+                - readAt
+            properties:
+                bookName:
+                    type: string
+                authorName:
+                    type: string
+                genres:
+                    type: array
+                    items:
+                        type: string
+                thoughts:
+                    type: string
+                readAt:
+                    type: string
+                    format: date
     securitySchemes:
         bearerAuth:
             type: http
@@ -64,3 +113,5 @@ security:
 tags:
     - name: users
       description: about users
+    - name: books
+      description: about books

@@ -3,6 +3,7 @@ module github.com/hedwig100/bookmark/backend
 go 1.18
 
 require (
+	github.com/dimfeld/httptreemux/v5 v5.4.0
 	github.com/golang-jwt/jwt/v4 v4.4.0
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v5 v5.0.0-alpha.1

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/hedwig100/bookmark/backend/slog"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -118,7 +119,7 @@ func (db *DbReal) ReadCreate(username string, read Read) error {
 	readId := id()
 	_, err = tx.Exec(context.Background(),
 		"INSERT INTO reads (read_id,user_id,book_id,thoughts,read_at) VALUES ($1,$2,$3,$4,$5)",
-		readId, userId, bookId, read.Thoughts, read.ReadAt)
+		readId, userId, bookId, read.Thoughts, time.Time(read.ReadAt))
 	if err != nil {
 		return err
 	}
