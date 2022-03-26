@@ -87,7 +87,7 @@ func GenJWT(w http.ResponseWriter, user_id string) {
 
 	// response
 	w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", tokenStr))
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 }
 
 // Auth verifies credentials using Authorization in the request header and a private key.

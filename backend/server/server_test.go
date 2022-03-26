@@ -27,7 +27,7 @@ func testServer(t *testing.T) {
 		wantJWT  bool // if JWT should be set or not
 	}{
 		{name: "hello", method: "GET", uri: "/hello", wantCode: 200, wantBody: "Hello World!"},
-		{name: "postUserExpectSucess", method: "POST", uri: "/users", body: `{"username":"hedwig100","password":"abcde12345"}`, wantCode: 200, wantJWT: true},
+		{name: "postUserExpectSucess", method: "POST", uri: "/users", body: `{"username":"hedwig100","password":"abcde12345"}`, wantCode: 201, wantJWT: true},
 		{name: "postUserExpectFailure", method: "POST", uri: "/users", body: `{"username":"John"}`, wantCode: 400},
 		{name: "read", method: "POST", uri: "/users/hedwig100/books",
 			body:     `{"bookName":"Harry Potter","authorName":"J.K.Rowling","genres":["fantasy","for children"],"thoughts":"Voldemort scared me a lot.","readAt":"2021-10-30T21:07"}`,
