@@ -6,6 +6,7 @@ ok() {
         echo "OK"
     else 
         echo "Failure"
+        exit 1
     fi
 }
 

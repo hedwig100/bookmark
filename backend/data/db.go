@@ -2,13 +2,17 @@ package data
 
 import (
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/hedwig100/bookmark/backend/slog"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // Db is a interface for representing database connection.
 type Db interface {
 	// UserCreate receives user and return user_id and error (if any).
-	UserCreate(user User) (string, error)
+	UserCreate(User) (string, error)
+
+	// ReadCreate receives username,read and return error (if any).
+	ReadCreate(string, Read) error
 }
 
 // DbReal connects to a real databaes. The pointer of this object implements Db interface.
@@ -18,14 +22,19 @@ type DbReal struct {
 
 // DbMock doesn't connect ot a real database, but simulate a database. The pointer of this object implements Db interface.
 type DbMock struct {
-	users []DbUser
+	users       []DbUser
+	authors     []DbAuthor
+	genres      []DbGenre
+	books       []DbBook
+	booksGenres []DbBooksGenres
+	reads       []DbRead
 }
 
 // id create uuid.
-func id() (string, error) {
+func id() string {
 	ret, err := uuid.NewRandom()
 	if err != nil {
-		return "", err
+		slog.Fatalf("failed to generate uuid: %v", err)
 	}
-	return ret.String(), nil
+	return ret.String()
 }
