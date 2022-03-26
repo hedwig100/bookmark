@@ -3,11 +3,14 @@ package server
 import (
 	"net/http"
 
-	_ "github.com/hedwig100/bookmark/backend/db"
+	"github.com/hedwig100/bookmark/backend/data"
 	"github.com/hedwig100/bookmark/backend/middleware"
 )
 
-func getMux() http.ServeMux {
+// NOTE: db must be initialized before the server starts to listen.
+var Db data.Db
+
+func GetMux() http.ServeMux {
 	var mux http.ServeMux
 	mux.HandleFunc("/hello", middleware.LogWrap(hello))
 	mux.HandleFunc("/users", middleware.LogWrap(postUser))
@@ -16,7 +19,8 @@ func getMux() http.ServeMux {
 }
 
 func Server() http.Server {
-	mux := getMux()
+	Db = data.NewDbReal()
+	mux := GetMux()
 	server := http.Server{
 		Addr:    "0.0.0.0:8081",
 		Handler: &mux,
