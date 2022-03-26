@@ -63,7 +63,7 @@ func postUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// generate JWT and send it to client
-	middleware.GenJWT(w, user_id)
+	middleware.GenJWT(w, user_id, user.Username)
 }
 
 // /users/:username/books

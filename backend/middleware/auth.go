@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dimfeld/httptreemux/v5"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/hedwig100/bookmark/backend/slog"
 )
@@ -66,17 +67,19 @@ func init() {
 }
 
 // GenJWT generates a JWT and returns it to the client.
-func GenJWT(w http.ResponseWriter, user_id string) {
+func GenJWT(w http.ResponseWriter, user_id string, username string) {
 	// generate header and claims
 	// "iss" (issuer): the principal that issued the JWT.
 	// "sub" (subject): the principal that is the subject of the JWT.
 	// "exp" (expiration time): the expiration time on or after which the JWT MUST NOT be accepted for processing
 	// "iat" (issued at): the time at which the JWT was issued.
+	// about iat https://github.com/dgrijalva/jwt-go/issues/383
+	// TODO: fix iat problem
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
-		"iss": "https://localhost",
-		"sub": user_id,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-		"iat": time.Now(),
+		"iss":      "https://localhost",
+		"sub":      user_id,
+		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+		"username": username,
 	})
 	tokenStr, err := token.SignedString(pri)
 	if err != nil {
@@ -100,6 +103,7 @@ func Auth(handler http.HandlerFunc) http.HandlerFunc {
 		if !ok || !strings.HasPrefix(auth[0], "Bearer ") {
 			slog.Info("Authorization isn't set")
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 		tokenStr := strings.TrimPrefix(auth[0], "Bearer ")
 
@@ -118,10 +122,38 @@ func Auth(handler http.HandlerFunc) http.HandlerFunc {
 		if err != nil {
 			slog.Infof("Unauthorized: %v", err)
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 		if err = token.Claims.Valid(); err != nil || !token.Valid {
 			slog.Infof("Unauthorized: %v or token isn't valid.", err)
 			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		// check if correct user
+		params := httptreemux.ContextParams(r.Context())
+		username, ok := params["username"]
+		if !ok {
+			slog.Err("Route must have 'username' in the path.")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		claim, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			slog.Err("Claim type must be jwt.MapClaims.")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		claimUsername, ok := claim["username"]
+		if !ok {
+			slog.Infof("Unauthorized: there is no 'username' key in claim.")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		if username != claimUsername {
+			slog.Infof("Unauthorized: unexpected username")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 
 		// handler
