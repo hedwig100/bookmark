@@ -11,8 +11,8 @@ import (
 )
 
 type reqTest struct {
-	// error message
-	msg string
+	// meta data
+	name string
 
 	// request data
 	method, uri, body string
@@ -24,9 +24,9 @@ type reqTest struct {
 
 func testServer(t *testing.T) {
 	testdata := []reqTest{
-		{msg: "error hello handler", method: "GET", uri: "/hello", wantCode: 200, wantBody: "Hello World!"},
-		{msg: "error postUser", method: "POST", uri: "/users", body: `{"username":"hedwig100","password":"abcde12345"}`, wantCode: 200, wantBody: ""},
-		{msg: "error postUser", method: "POST", uri: "/users", body: `{"username":"John"}`, wantCode: 400},
+		{name: "hello", method: "GET", uri: "/hello", wantCode: 200, wantBody: "Hello World!"},
+		{name: "postUserExpectSucess", method: "POST", uri: "/users", body: `{"username":"hedwig100","password":"abcde12345"}`, wantCode: 200, wantBody: ""},
+		{name: "postUserExpectFailure", method: "POST", uri: "/users", body: `{"username":"John"}`, wantCode: 400},
 	}
 
 	// server initialization
@@ -34,21 +34,23 @@ func testServer(t *testing.T) {
 
 	var w *httptest.ResponseRecorder
 	for i, rt := range testdata {
-		body := strings.NewReader(rt.body)
-		req, err := http.NewRequest(rt.method, rt.uri, body)
-		if err != nil {
-			t.Fatalf("[test%d] invalid request: %v", i, err)
-		}
-		w = httptest.NewRecorder()
-		mux.ServeHTTP(w, req)
+		t.Run(rt.name, func(t *testing.T) {
+			body := strings.NewReader(rt.body)
+			req, err := http.NewRequest(rt.method, rt.uri, body)
+			if err != nil {
+				t.Fatalf("[test%d] invalid request: %v", i, err)
+			}
+			w = httptest.NewRecorder()
+			mux.ServeHTTP(w, req)
 
-		if w.Code != rt.wantCode {
-			t.Fatalf("[test%d] %s, code expected: %d,actual: %d", i, rt.msg, rt.wantCode, w.Code)
-		}
-		actBody := string(w.Body.Bytes())
-		if actBody != rt.wantBody {
-			t.Fatalf("[test%d] %s, body expected: %s,actual: %s", i, rt.msg, rt.wantBody, actBody)
-		}
+			if w.Code != rt.wantCode {
+				t.Fatalf("[test%d] code expected: %d,actual: %d", i, rt.wantCode, w.Code)
+			}
+			actBody := string(w.Body.Bytes())
+			if actBody != rt.wantBody {
+				t.Fatalf("[test%d] body expected: %s,actual: %s", i, rt.wantBody, actBody)
+			}
+		})
 	}
 }
 
