@@ -27,10 +27,17 @@ func testServer(t *testing.T) {
 		wantJWT  bool // if JWT should be set or not
 	}{
 		{name: "hello", method: "GET", uri: "/hello", wantCode: 200, wantBody: "Hello World!"},
-		{name: "postUserExpectSucess", username: "hedwig100", method: "POST", uri: "/users", body: `{"username":"hedwig100","password":"abcde12345"}`, wantCode: 201, wantJWT: true},
+		{name: "postUserExpectSucess1", username: "hedwig100", method: "POST", uri: "/users", body: `{"username":"hedwig100","password":"abcde12345"}`, wantCode: 201, wantJWT: true},
+		{name: "postUserExpectSucess2", username: "Kate", method: "POST", uri: "/users", body: `{"username":"Kate","password":"01234pol"}`, wantCode: 201, wantJWT: true},
 		{name: "postUserExpectFailure", method: "POST", uri: "/users", body: `{"username":"John"}`, wantCode: 400},
-		{name: "read", username: "hedwig100", needJWT: true, method: "POST", uri: "/users/hedwig100/books",
+		{name: "read1", username: "hedwig100", needJWT: true, method: "POST", uri: "/users/hedwig100/books",
 			body:     `{"bookName":"Harry Potter","authorName":"J.K.Rowling","genres":["fantasy","for children"],"thoughts":"Voldemort scared me a lot.","readAt":"2021-10-30T21:07"}`,
+			wantCode: 201},
+		{name: "read2", username: "Kate", needJWT: true, method: "POST", uri: "/users/Kate/books",
+			body:     `{"bookName":"Who Moved My Cheese?","authorName":"Spencer Johnson","genres":["life"],"readAt":"2022-03-29T21:07"}`,
+			wantCode: 201},
+		{name: "read3", username: "Kate", needJWT: true, method: "POST", uri: "/users/Kate/books",
+			body:     `{"bookName":"Harry Potter","authorName":"J.K.Rowling","genres":["fantasy","for children"],"thoughts":"Very Exciting!","readAt":"2021-10-30T21:07"}`,
 			wantCode: 201},
 		{name: "readErrorWhenUsernameIsDifferent", username: "hedwig100", needJWT: true, method: "POST", uri: "/users/hedwig/books",
 			body:     `{"bookName":"Harry Potter","authorName":"J.K.Rowling","genres":["fantasy","for children"],"thoughts":"Voldemort scared me a lot.","readAt":"2021-10-30T21:07"}`,
@@ -40,6 +47,8 @@ func testServer(t *testing.T) {
 		{name: "loginFailureWithUnregisteredUser", method: "POST", uri: "/login", body: `{"username":"he100","password":"abc45"}`, wantCode: 500},
 		{name: "readGet", username: "hedwig100", needJWT: true, method: "GET", uri: "/users/hedwig100/books", wantCode: 200,
 			wantBody: `{"reads":[{"bookName":"Harry Potter","authorName":"J.K.Rowling","genres":["fantasy","for children"],"thoughts":"Voldemort scared me a lot.","readAt":"2021-10-30T21:07"}]}`},
+		{name: "readGet", username: "Kate", needJWT: true, method: "GET", uri: "/users/Kate/books", wantCode: 200,
+			wantBody: `{"reads":[{"bookName":"Who Moved My Cheese?","authorName":"Spencer Johnson","genres":["life"],"thoughts":"","readAt":"2022-03-29T21:07"},{"bookName":"Harry Potter","authorName":"J.K.Rowling","genres":["fantasy","for children"],"thoughts":"Very Exciting!","readAt":"2021-10-30T21:07"}]}`},
 	}
 	// maps username to jwt
 	mp := make(map[string]string, 1)
