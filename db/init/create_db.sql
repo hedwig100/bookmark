@@ -35,7 +35,7 @@ CREATE TABLE reads (
     user_id VARCHAR(128) NOT NULL,
     book_id VARCHAR(128) NOT NULL,
     thoughts VARCHAR(1024),
-    read_at DATE NOT NULL,
+    read_at TIMESTAMP NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (book_id) REFERENCES books(book_id) ON DELETE CASCADE
 );
