@@ -139,3 +139,27 @@ func read(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+// /users/:username/books
+// GET
+func readGet(w http.ResponseWriter, r *http.Request) {
+	params := httptreemux.ContextParams(r.Context())
+	username := params["username"]
+	reads, err := Db.ReadGet(username)
+	if err != nil {
+		slog.Errf("internal server error: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	body, err := json.Marshal(data.Reads{Reads: reads})
+	if err != nil {
+		slog.Errf("internal server error: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+	return
+}

@@ -104,6 +104,50 @@ paths:
                     description: Unauthorized
                 "500":
                     description: Internal server error
+        get:
+            tags:
+                - users
+            summary: get the user's reading log
+            description: get the user's reading log
+            parameters: []
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    record:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/Read"
+                            example:
+                                reads:
+                                    [
+                                        {
+                                            bookName: "Harry Potter",
+                                            authorName: "J.K. Rowling",
+                                            genres: ["fantasy", "for children"],
+                                            thoughts: "Voldemort scared me a lot.",
+                                            readAt: "2021-10-30",
+                                        },
+                                        {
+                                            bookName: "A Christmas Carol",
+                                            authorName: "Charles Dickens",
+                                            genres: ["for children"],
+                                            thoughts: "I want to read at the Christmas.",
+                                            readAt: "2022-2-30",
+                                        },
+                                    ]
+                "400":
+                    description: Cannot parse request body
+                "401":
+                    description: Unauthorized
+                "500":
+                    description: Internal Server Error
 
 components:
     schemas:

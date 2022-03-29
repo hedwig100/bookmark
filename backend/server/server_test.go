@@ -38,6 +38,8 @@ func testServer(t *testing.T) {
 		{name: "login", username: "hedwig100", method: "POST", uri: "/login", body: `{"username":"hedwig100","password":"abcde12345"}`, wantCode: 200, wantJWT: true},
 		{name: "loginFailureWithWrongPassword", method: "POST", uri: "/login", body: `{"username":"hedwig100","password":"abc45"}`, wantCode: 500},
 		{name: "loginFailureWithUnregisteredUser", method: "POST", uri: "/login", body: `{"username":"he100","password":"abc45"}`, wantCode: 500},
+		{name: "readGet", username: "hedwig100", needJWT: true, method: "GET", uri: "/users/hedwig100/books", wantCode: 200,
+			wantBody: `{"reads":[{"bookName":"Harry Potter","authorName":"J.K.Rowling","genres":["fantasy","for children"],"thoughts":"Voldemort scared me a lot.","readAt":"2021-10-30T21:07"}]}`},
 	}
 	// maps username to jwt
 	mp := make(map[string]string, 1)

@@ -19,6 +19,7 @@ func TestDb(t *testing.T) {
 	t.Run("UserCreate", testUserCreate)
 	t.Run("Login", testLogin)
 	t.Run("ReadCreate", testReadCreate)
+	t.Run("ReadGet", testReadGet)
 }
 
 func testUserCreate(t *testing.T) {
@@ -142,6 +143,81 @@ func testReadCreate(t *testing.T) {
 			if !td.expectError && err != nil {
 				t.Fatal(err)
 			}
+		})
+	}
+}
+
+func compare[T comparable](a []T, b []T) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func testReadGet(t *testing.T) {
+	rg := []struct {
+		username    string
+		reads       []data.Read
+		expectError bool
+	}{
+		{
+			username: "hedwig100",
+			reads: []data.Read{
+				{
+					BookName:   "ABC",
+					AuthorName: "J.K.Rowling",
+					Genres: []string{
+						"fantasy",
+						"textbook",
+					},
+					Thoughts: "fantastic!",
+					ReadAt:   data.Timef(time.Now()),
+				},
+				{
+					BookName:   "The Little Prince",
+					AuthorName: "Antoine Marie Jean-Baptiste Roger, comte de Saint-Exupery",
+					Genres: []string{
+						"fantasy",
+						"for children",
+					},
+					Thoughts: "It makes me think seriously.",
+					ReadAt:   data.Timef(time.Now()),
+				},
+			},
+			expectError: false,
+		},
+		{
+			username: "python39",
+			reads: []data.Read{
+				{
+					BookName:   "The Little Prince",
+					AuthorName: "Antoine Marie Jean-Baptiste Roger, comte de Saint-Exupery",
+					Genres: []string{
+						"fantasy",
+						"thought-provoking",
+					},
+					Thoughts: "",
+					ReadAt:   data.Timef(time.Now()),
+				},
+			},
+			expectError: false,
+		},
+	}
+	for i, td := range rg {
+		t.Run(fmt.Sprintf("ReadGet%d", i), func(t *testing.T) {
+			reads, err := db.ReadGet(td.username)
+			if td.expectError && err == nil {
+				t.Fatal("err expected")
+			}
+			if !td.expectError && err != nil {
+				t.Fatal(err)
+			}
+			_ = reads
 		})
 	}
 }

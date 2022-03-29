@@ -73,6 +73,30 @@ func (db *DbMock) ReadCreate(username string, read Read) error {
 	return nil
 }
 
+func (db *DbMock) ReadGet(username string) ([]Read, error) {
+	user, err := db.selectUsers(username)
+	if err != nil {
+		return nil, err
+	}
+	userId := user.UserId
+	reads := db.selectRead(userId)
+	ret := make([]Read, 0)
+	for _, read := range reads {
+		bookName, authorName, genres, err := db.selectBook(read.BookId)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, Read{
+			BookName:   bookName,
+			AuthorName: authorName,
+			Genres:     genres,
+			Thoughts:   read.Thoughts,
+			ReadAt:     read.ReadAt,
+		})
+	}
+	return ret, nil
+}
+
 func (db *DbMock) insertAuthor(name string) string {
 	var already bool
 	for _, author := range db.authors {
@@ -155,4 +179,56 @@ func (db *DbMock) selectUsers(username string) (DbUser, error) {
 		}
 	}
 	return DbUser{}, fmt.Errorf("user '%s' not found", username)
+}
+
+func (db *DbMock) selectRead(userId string) []DbRead {
+	ret := make([]DbRead, 0)
+	for _, read := range db.reads {
+		if read.UserId == userId {
+			ret = append(ret, read)
+		}
+	}
+	return ret
+}
+
+func (db *DbMock) selectBook(bookId string) (bookName string, authorName string, genres []string, err error) {
+
+	var book DbBook
+	var find bool
+	for _, bk := range db.books {
+		if bk.BookId == bookId {
+			book = bk
+			find = true
+			break
+		}
+	}
+	if !find {
+		return "", "", nil, fmt.Errorf("the book isn't found.")
+	}
+	bookName = book.Name
+
+	find = false
+	for _, at := range db.authors {
+		if at.AuthorId == book.AuthorId {
+			authorName = at.Name
+			find = true
+			break
+		}
+	}
+	if !find {
+		return "", "", nil, fmt.Errorf("the author isn't found.")
+	}
+
+	genres = make([]string, 0)
+	for _, bookGenre := range db.booksGenres {
+		if bookGenre.BookId == bookId {
+			for _, genre := range db.genres {
+				if genre.GenreId == bookGenre.GenreId {
+					genres = append(genres, genre.Name)
+				}
+			}
+		}
+	}
+
+	return bookName, authorName, genres, nil
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Timef parse and format time as RFC3339 = "2006-01-02T15:04:05Z07:00"
 type Timef time.Time
 
 func (t *Timef) UnmarshalJSON(b []byte) error {
@@ -19,6 +20,12 @@ func (t *Timef) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+func (t Timef) MarshalJSON() ([]byte, error) {
+	tim := time.Time(t)
+	s := tim.Format("2006-01-02T15:04")
+	return json.Marshal(s)
+}
+
 type User struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -30,6 +37,10 @@ type Read struct {
 	Genres     []string `json:"genres"`
 	Thoughts   string   `json:"thoughts"`
 	ReadAt     Timef    `json:"readAt"`
+}
+
+type Reads struct {
+	Reads []Read `json:"reads"`
 }
 
 type DbUser struct {
