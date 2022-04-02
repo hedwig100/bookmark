@@ -22,6 +22,12 @@ func readBody(r *http.Request) ([]byte, error) {
 	return body, nil
 }
 
+func respErr(w http.ResponseWriter, status int, message string) {
+	body, _ := json.Marshal(Error{Message: message})
+	w.WriteHeader(status)
+	w.Write(body)
+}
+
 // /hello
 // GET
 // this is a test handler
@@ -58,7 +64,7 @@ func postUser(w http.ResponseWriter, r *http.Request) {
 	user_id, err := Db.UserCreate(user)
 	if err != nil {
 		slog.Errf("user create error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		respErr(w, http.StatusInternalServerError, "The username is already registered.")
 		return
 	}
 

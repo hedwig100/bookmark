@@ -41,7 +41,7 @@ func (db *DbReal) UserCreate(user User) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword(hashedPassword, 10)
 	if err != nil {
 		slog.Infof("internal error: %v", err)
-		return "", err
+		return "", InternalServerError
 	}
 
 	_, err = db.pool.Exec(context.Background(),
@@ -50,7 +50,7 @@ func (db *DbReal) UserCreate(user User) (string, error) {
 
 	if err != nil {
 		slog.Infof("db insert error: %v", err)
-		return "", err
+		return "", UserAlreadyRegistered
 	}
 
 	return user_id, nil

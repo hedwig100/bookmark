@@ -26,7 +26,12 @@ func (db *DbMock) UserCreate(user User) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword(hashedPassword, 10)
 	if err != nil {
 		slog.Infof("internal error: %v", err)
-		return "", err
+		return "", InternalServerError
+	}
+
+	_, err = db.selectUsers(user.Username)
+	if err == nil {
+		return "", UserAlreadyRegistered
 	}
 
 	db.users = append(db.users, DbUser{

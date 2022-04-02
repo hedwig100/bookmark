@@ -30,6 +30,7 @@ func testServer(t *testing.T) {
 		{name: "postUserExpectSucess1", username: "hedwig100", method: "POST", uri: "/users", body: `{"username":"hedwig100","password":"abcde12345"}`, wantCode: 201, wantJWT: true},
 		{name: "postUserExpectSucess2", username: "Kate", method: "POST", uri: "/users", body: `{"username":"Kate","password":"01234pol"}`, wantCode: 201, wantJWT: true},
 		{name: "postUserExpectFailure", method: "POST", uri: "/users", body: `{"username":"John"}`, wantCode: 400},
+		{name: "postUserFailuresWithSameUsername", method: "POST", uri: "/users", body: `{"username":"hedwig100","password":"aaa"}`, wantCode: 500, wantBody: `{"message":"The username is already registered."}`},
 		{name: "read1", username: "hedwig100", needJWT: true, method: "POST", uri: "/users/hedwig100/books",
 			body:     `{"bookName":"Harry Potter","authorName":"J.K.Rowling","genres":["fantasy","for children"],"thoughts":"Voldemort scared me a lot.","readAt":"2021-10-30T21:07"}`,
 			wantCode: 201},

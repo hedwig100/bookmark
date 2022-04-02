@@ -1,9 +1,16 @@
 package data
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/hedwig100/bookmark/backend/slog"
 	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+var (
+	UserAlreadyRegistered = fmt.Errorf("the username is already registered.")
+	InternalServerError   = fmt.Errorf("internal server error")
 )
 
 // Db is a interface for representing database connection.
