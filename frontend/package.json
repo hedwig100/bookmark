@@ -10,6 +10,9 @@
   "dependencies": {
     "axios": "^0.26.1",
     "core-js": "^3.8.3",
+    "https-browserify": "^1.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.14"
   },

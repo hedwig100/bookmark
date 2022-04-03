@@ -92,7 +92,7 @@ func GenJWT(w http.ResponseWriter, user_id string, username string) {
 		Name:     "bookmark_auth",
 		Value:    tokenStr,
 		MaxAge:   60 * 60 * 24,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
 		HttpOnly: true,
 	}

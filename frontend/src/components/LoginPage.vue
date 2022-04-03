@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import { client } from "../client";
 
 export default {
   data() {
@@ -45,7 +45,7 @@ export default {
         this.isError = true;
         return;
       }
-      axios
+      client
         .post("/login", {
           username: this.username,
           password: this.password,
@@ -56,8 +56,7 @@ export default {
             // created
             console.log("login");
             this.isError = false;
-            this.$router.push("/");
-            // TODO: handle jwt
+            this.$router.push("/users/" + this.username);
           }
         })
         .catch((error) => {

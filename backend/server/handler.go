@@ -43,6 +43,7 @@ func cors(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST,GET,PUT,DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.Header().Set("Access-Control-Max-Age", "86400")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.WriteHeader(http.StatusOK)
 }
 

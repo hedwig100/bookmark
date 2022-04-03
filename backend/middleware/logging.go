@@ -33,7 +33,11 @@ func LogWrap(handler http.HandlerFunc) http.HandlerFunc {
 		sw := statusResponseWriter{
 			ResponseWriter: w,
 		}
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		// CORS
+		w.Header().Set("Access-Control-Allow-Origin", "https://localhost.hedwig100.tk:8084")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 		handler(&sw, r)
 		slog.Infof("Status: %d,Header: %v)", sw.statusCode, w.Header())
 	}

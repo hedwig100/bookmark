@@ -9,7 +9,6 @@
 import { client } from "../client";
 
 export default {
-  name: "HelloWorld",
   data() {
     return {
       msg: "",
@@ -20,9 +19,10 @@ export default {
   },
   methods: {
     submit() {
-      console.log("submit /hello request.");
+      console.log("submit /users/a/books request.");
       client
-        .get("/hello")
+        // TODO: username must be username
+        .get("/users/" + this.$route.params.username + "/books")
         .then((resp) => {
           console.log(resp);
           this.msg = resp.data;
