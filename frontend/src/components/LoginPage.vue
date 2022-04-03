@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import { client } from "../client";
 
 export default {
   data() {
@@ -45,7 +45,7 @@ export default {
         this.isError = true;
         return;
       }
-      axios
+      client
         .post("/login", {
           username: this.username,
           password: this.password,

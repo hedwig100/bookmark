@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import { client } from "../client";
 
 export default {
   name: "HelloWorld",
@@ -21,7 +21,7 @@ export default {
   methods: {
     submit() {
       console.log("submit /hello request.");
-      axios
+      client
         .get("/hello")
         .then((resp) => {
           console.log(resp);
