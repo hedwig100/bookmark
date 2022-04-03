@@ -13,6 +13,7 @@ var Db data.Db
 
 func GetMux() http.Handler {
 	mux := httptreemux.NewContextMux()
+	mux.OPTIONS("/*", middleware.LogWrap(cors))
 	mux.GET("/hello", middleware.LogWrap(hello))
 	mux.POST("/users", middleware.LogWrap(postUser))
 	mux.GET("/auth_test", middleware.LogWrap(middleware.Auth(hello)))

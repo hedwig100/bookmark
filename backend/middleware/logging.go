@@ -26,13 +26,14 @@ func (w *statusResponseWriter) WriteHeader(statusCode int) {
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
-// LogWrap wraps handlers to output logs
+// LogWrap wraps handlers to output logs and set 'Access-Control-Allow-Origin'
 func LogWrap(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		slog.Infof("Method: %s,URL: %s,Protocol: %s,RemoteIP: %s", r.Method, r.URL, r.Proto, r.RemoteAddr)
 		sw := statusResponseWriter{
 			ResponseWriter: w,
 		}
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		handler(&sw, r)
 		slog.Infof("Status: %d,Header: %v)", sw.statusCode, w.Header())
 	}

@@ -36,6 +36,16 @@ func hello(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// cors
+// OPTIONS
+func cors(w http.ResponseWriter, r *http.Request) {
+	// TODO: security
+	w.Header().Set("Access-Control-Allow-Methods", "POST,GET,PUT,DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Max-Age", "86400")
+	w.WriteHeader(http.StatusOK)
+}
+
 // /users
 // POST
 func postUser(w http.ResponseWriter, r *http.Request) {
