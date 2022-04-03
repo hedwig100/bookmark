@@ -22,8 +22,8 @@ func readBody(r *http.Request) ([]byte, error) {
 	return body, nil
 }
 
-func respErr(w http.ResponseWriter, status int, message string) {
-	body, _ := json.Marshal(Error{Message: message})
+func respErr(w http.ResponseWriter, status int, code int, message string) {
+	body, _ := json.Marshal(Error{Message: message, Code: code})
 	w.WriteHeader(status)
 	w.Write(body)
 }
@@ -53,28 +53,32 @@ func postUser(w http.ResponseWriter, r *http.Request) {
 	// read request body
 	body, err := readBody(r)
 	if err != nil {
-		slog.Infof("error while parsing request body: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
+		slog.Errf("error while parsing request body: %v", err)
+		respErr(w, http.StatusInternalServerError, 1, "Internal server error.")
 		return
 	}
 
 	var user data.User
 	if err = json.Unmarshal(body, &user); err != nil {
 		slog.Infof("expect User model: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
+		respErr(w, http.StatusBadRequest, 1, "Invalid json format.")
 		return
 	}
 
 	if user.Username == "" || user.Password == "" {
 		slog.Infof("expect valid User model")
-		w.WriteHeader(http.StatusBadRequest)
+		respErr(w, http.StatusBadRequest, 0, "Empty username or password.")
 		return
 	}
 
 	user_id, err := Db.UserCreate(user)
 	if err != nil {
 		slog.Errf("user create error: %v", err)
-		respErr(w, http.StatusInternalServerError, "The username is already registered.")
+		if err == data.ErrUserAlreadyRegistered {
+			respErr(w, http.StatusInternalServerError, 0, "The username is already registered.")
+		} else {
+			respErr(w, http.StatusInternalServerError, 1, "Internal server error.")
+		}
 		return
 	}
 
@@ -89,28 +93,32 @@ func login(w http.ResponseWriter, r *http.Request) {
 	// read request body
 	body, err := readBody(r)
 	if err != nil {
-		slog.Infof("error while parsing request body: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
+		slog.Errf("error while parsing request body: %v", err)
+		respErr(w, http.StatusInternalServerError, 1, "Internal server error.")
 		return
 	}
 
 	var user data.User
 	if err = json.Unmarshal(body, &user); err != nil {
 		slog.Infof("expect User model: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
+		respErr(w, http.StatusBadRequest, 1, "Invalid json format.")
 		return
 	}
 
 	if user.Username == "" || user.Password == "" {
 		slog.Infof("expect valid User model")
-		w.WriteHeader(http.StatusBadRequest)
+		respErr(w, http.StatusBadRequest, 0, "Empty username or password.")
 		return
 	}
 
 	userId, err := Db.Login(user)
 	if err != nil {
 		slog.Errf("internal server error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		if err == data.ErrUserNotFound || err == data.ErrPasswordInvalid {
+			respErr(w, http.StatusInternalServerError, 0, "Invalid user or password.")
+		} else {
+			respErr(w, http.StatusInternalServerError, 1, "Internal server error.")
+		}
 		return
 	}
 

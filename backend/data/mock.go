@@ -31,7 +31,7 @@ func (db *DbMock) UserCreate(user User) (string, error) {
 
 	_, err = db.selectUsers(user.Username)
 	if err == nil {
-		return "", UserAlreadyRegistered
+		return "", ErrUserAlreadyRegistered
 	}
 
 	db.users = append(db.users, DbUser{
@@ -47,12 +47,12 @@ func (db *DbMock) Login(user User) (string, error) {
 	for _, registeredUser := range db.users {
 		if registeredUser.Username == user.Username {
 			if err := bcrypt.CompareHashAndPassword([]byte(registeredUser.Password), []byte(user.Password)); err != nil {
-				return "", err
+				return "", ErrPasswordInvalid
 			}
 			return registeredUser.UserId, nil
 		}
 	}
-	return "", fmt.Errorf("user(%s) not found", user.Username)
+	return "", ErrUserNotFound
 }
 
 func (db *DbMock) ReadCreate(username string, read Read) error {

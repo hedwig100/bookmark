@@ -41,6 +41,13 @@ paths:
                             description: Json Web Token for the user
                 "400":
                     description: Cannot parse request body
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            example:
+                                code: 0
+                                message: "Username and Password must be set in request."
                 "500":
                     description: Internal server error
                     content:
@@ -48,6 +55,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
                             example:
+                                code: 0
                                 message: "The username is already used."
     /login:
         post:
@@ -76,8 +84,22 @@ paths:
                             description: Json Web Token for the user
                 "400":
                     description: Cannot parse request body
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            example:
+                                code: 0
+                                message: "Username and Password must be set in request."
                 "500":
                     description: Internal server error (this includes not found user and using invalid password.)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            example:
+                                code: 0
+                                message: "The username isn't registered."
 
     /users/:username/books:
         post:
@@ -191,9 +213,13 @@ components:
             type: object
             required:
                 - message
+                - code
             properties:
                 message:
                     type: string
+                code:
+                    type: integer
+                    description: if code is 0, it is a user-friendly error, else its error must be handled by client.
     securitySchemes:
         bearerAuth:
             type: http

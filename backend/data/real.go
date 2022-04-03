@@ -50,7 +50,7 @@ func (db *DbReal) UserCreate(user User) (string, error) {
 
 	if err != nil {
 		slog.Infof("db insert error: %v", err)
-		return "", UserAlreadyRegistered
+		return "", ErrUserAlreadyRegistered
 	}
 
 	return user_id, nil
@@ -59,17 +59,19 @@ func (db *DbReal) UserCreate(user User) (string, error) {
 func (db *DbReal) Login(user User) (string, error) {
 	rows, err := db.pool.Query(context.Background(), "SELECT user_id,password FROM users WHERE username = $1", user.Username)
 	if err != nil {
-		return "", err
+		slog.Err(err)
+		return "", InternalServerError
 	}
 	if !rows.Next() {
-		return "", fmt.Errorf("user(%s) not found", user.Username)
+		return "", ErrUserNotFound
 	}
 	var userId, password string
 	if err = rows.Scan(&userId, &password); err != nil {
-		return "", err
+		slog.Err(err)
+		return "", InternalServerError
 	}
 	if err = bcrypt.CompareHashAndPassword([]byte(password), []byte(user.Password)); err != nil {
-		return "", err
+		return "", ErrPasswordInvalid
 	}
 	return userId, nil
 }

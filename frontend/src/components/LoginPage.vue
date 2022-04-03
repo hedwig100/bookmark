@@ -61,9 +61,11 @@ export default {
           }
         })
         .catch((error) => {
-          if (error.response) {
+          if (error.response.data.code == 0) {
             this.errMsg = error.response.data.message;
             this.isError = true;
+          }
+          if (error.response) {
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);

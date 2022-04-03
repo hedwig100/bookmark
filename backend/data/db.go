@@ -9,8 +9,10 @@ import (
 )
 
 var (
-	UserAlreadyRegistered = fmt.Errorf("the username is already registered.")
-	InternalServerError   = fmt.Errorf("internal server error")
+	ErrUserAlreadyRegistered = fmt.Errorf("the username is already registered.")
+	InternalServerError      = fmt.Errorf("internal server error")
+	ErrUserNotFound          = fmt.Errorf("the username is not found.")
+	ErrPasswordInvalid       = fmt.Errorf("the password is invalid.")
 )
 
 // Db is a interface for representing database connection.
