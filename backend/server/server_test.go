@@ -1,7 +1,6 @@
 package server_test
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -60,7 +59,7 @@ func testServer(t *testing.T) {
 			wantBody: `{"reads":[{"bookName":"Who Moved My Cheese?","authorName":"Spencer Johnson","genres":["life"],"thoughts":"","readAt":"2022-03-29T21:07"},{"bookName":"Harry Potter","authorName":"J.K.Rowling","genres":["fantasy","for children"],"thoughts":"Very Exciting!","readAt":"2021-10-30T21:07"}]}`},
 	}
 	// maps username to jwt
-	mp := make(map[string]string, 1)
+	mp := make(map[string]*http.Cookie, 1)
 
 	// server initialization
 	mux := server.GetMux()
@@ -77,11 +76,11 @@ func testServer(t *testing.T) {
 				t.Fatalf("[test%d] invalid request: %v", i, err)
 			}
 			if rt.needJWT {
-				token, ok := mp[rt.username]
+				c, ok := mp[rt.username]
 				if !ok {
 					t.Fatalf("[test%d] token not found", i)
 				}
-				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+				req.AddCookie(c)
 			}
 
 			/*
@@ -107,11 +106,16 @@ func testServer(t *testing.T) {
 
 			// authorization
 			if rt.wantJWT {
-				auth, ok := w.Header()["Authorization"]
-				if !ok || !strings.HasPrefix(auth[0], "Bearer ") {
-					t.Fatalf("[test%d] Authorization expected but not found", i)
+				cStr, ok := w.Header()["Set-Cookie"]
+				if !ok {
+					t.Fatalf("[test%d] want jwt but cookie isn't set.", i)
 				}
-				mp[rt.username] = strings.TrimPrefix(auth[0], "Bearer ")
+				parser := &http.Request{Header: http.Header{"Cookie": cStr}}
+				c, err := parser.Cookie("bookmark_auth")
+				if err != nil {
+					t.Fatalf("[test%d] cookie parse error", i)
+				}
+				mp[rt.username] = c
 			}
 		})
 	}

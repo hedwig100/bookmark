@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/dimfeld/httptreemux/v5"
@@ -88,8 +87,16 @@ func GenJWT(w http.ResponseWriter, user_id string, username string) {
 		return
 	}
 
-	// response
-	w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", tokenStr))
+	// response in cookie
+	c := http.Cookie{
+		Name:     "bookmark_auth",
+		Value:    tokenStr,
+		MaxAge:   60 * 60 * 24,
+		SameSite: http.SameSiteLaxMode,
+		// Secure: true, TODO: it must be set after this server supports tls.
+		HttpOnly: true,
+	}
+	http.SetCookie(w, &c)
 }
 
 // Auth verifies credentials using Authorization in the request header and a private key.
@@ -98,13 +105,13 @@ func Auth(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		// we expect "Authorization: Bearer <token>"
-		auth, ok := r.Header["Authorization"]
-		if !ok || !strings.HasPrefix(auth[0], "Bearer ") {
+		c, err := r.Cookie("bookmark_auth")
+		if err != nil {
 			slog.Info("Authorization isn't set")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		tokenStr := strings.TrimPrefix(auth[0], "Bearer ")
+		tokenStr := c.Value
 
 		// parse jwt
 		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
