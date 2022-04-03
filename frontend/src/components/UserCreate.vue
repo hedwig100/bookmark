@@ -1,7 +1,12 @@
 <template>
   <div class="login">
-    <p id="warn">
-      <span>You cannot change your username after registered.</span>
+    <p id="exp">
+      You can create your account in this page. If you already have an account,
+      go <router-link to="/login" id="to_login">here</router-link>. <br />
+      <span id="warn">You cannot change your username after registered.</span>
+    </p>
+    <p v-show="isError" id="err">
+      {{ errMsg }}
     </p>
     <form>
       <div class="in">
@@ -18,24 +23,57 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
       username: "",
       password: "",
+      isError: false,
+      errMsg: "",
     };
   },
   methods: {
     submit() {
       if (this.username === "") {
-        window.alert("Username must not be empty.");
+        this.errMsg = "Username must not be empty.";
+        this.isError = true;
         return;
       }
       if (this.password === "") {
-        window.alert("Password must not be empty.");
+        this.errMsg = "Password must not be empty";
+        this.isError = true;
         return;
       }
-      // TODO axios /users POST
+      axios
+        .post("/users", {
+          username: this.username,
+          password: this.password,
+        })
+        .then((response) => {
+          console.log(response);
+          if (response.status == 201) {
+            // created
+            console.log("created");
+            this.isError = false;
+            this.$router.push("/");
+            // TODO: handle jwt
+          }
+        })
+        .catch((error) => {
+          if (error.response) {
+            this.errMsg = error.response.data.message;
+            this.isError = true;
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+          } else if (error.request) {
+            console.log(error.request);
+          } else {
+            console.log("Error", error.message);
+          }
+        });
     },
   },
 };
@@ -53,9 +91,19 @@ export default {
   width: 100vw;
   height: 100vh;
 }
-#warn {
+#exp {
   margin-top: 50px;
   padding: 0;
+}
+#to_login:hover {
+  opacity: 0.5;
+}
+#warn {
+  font-weight: bold;
+}
+#err {
+  font-weight: bold;
+  color: red;
 }
 form {
   display: block;
