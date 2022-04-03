@@ -2,3 +2,7 @@ out.log
 backend/.cache
 backend/*.pem
 backend/backend
+backend/server.crt
+backend/server.csr
+backend/server.key
+backend/ca.*

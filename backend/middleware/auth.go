@@ -93,7 +93,7 @@ func GenJWT(w http.ResponseWriter, user_id string, username string) {
 		Value:    tokenStr,
 		MaxAge:   60 * 60 * 24,
 		SameSite: http.SameSiteLaxMode,
-		// Secure: true, TODO: it must be set after this server supports tls.
+		Secure:   true,
 		HttpOnly: true,
 	}
 	http.SetCookie(w, &c)

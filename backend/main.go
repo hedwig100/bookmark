@@ -34,7 +34,7 @@ func main() {
 		close(idleConnsClosed)
 	}()
 
-	if err := server.ListenAndServe(); err != http.ErrServerClosed {
+	if err := server.ListenAndServeTLS("server.crt", "server.key"); err != http.ErrServerClosed {
 		slog.Fatalf("server listening failed %v", err)
 	}
 
