@@ -3,6 +3,7 @@ package server_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -54,9 +55,9 @@ func testServer(t *testing.T) {
 		{name: "loginFailureWithUnregisteredUser", method: "POST", uri: "/login", body: `{"username":"he100","password":"abc45"}`, wantCode: 500,
 			wantBody: `{"message":"Invalid user or password.","code":0}`},
 		{name: "readGet", username: "hedwig100", needJWT: true, method: "GET", uri: "/users/hedwig100/books", wantCode: 200,
-			wantBody: `{"reads":[{"bookName":"Harry Potter","authorName":"J.K.Rowling","genres":["fantasy","for children"],"thoughts":"Voldemort scared me a lot.","readAt":"2021-10-30T21:07"}]}`},
+			wantBody: `\{"reads":\[\{"readId":".*","bookName":"Harry Potter","authorName":"J.K.Rowling","genres":\["fantasy","for children"\],"thoughts":"Voldemort scared me a lot.","readAt":"2021-10-30T21:07"\}\]\}`},
 		{name: "readGet", username: "Kate", needJWT: true, method: "GET", uri: "/users/Kate/books", wantCode: 200,
-			wantBody: `{"reads":[{"bookName":"Who Moved My Cheese?","authorName":"Spencer Johnson","genres":["life"],"thoughts":"","readAt":"2022-03-29T21:07"},{"bookName":"Harry Potter","authorName":"J.K.Rowling","genres":["fantasy","for children"],"thoughts":"Very Exciting!","readAt":"2021-10-30T21:07"}]}`},
+			wantBody: `\{"reads":\[\{"readId":".*","bookName":"Who Moved My Cheese\?","authorName":"Spencer Johnson","genres":\["life"\],"thoughts":"","readAt":"2022-03-29T21:07"\},\{"readId":".*","bookName":"Harry Potter","authorName":"J.K.Rowling","genres":\["fantasy","for children"\],"thoughts":"Very Exciting!","readAt":"2021-10-30T21:07"\}\]\}`},
 	}
 	// maps username to jwt
 	mp := make(map[string]*http.Cookie, 1)
@@ -99,9 +100,9 @@ func testServer(t *testing.T) {
 			}
 
 			// response body
-			actBody := string(w.Body.Bytes())
-			if actBody != rt.wantBody {
-				t.Fatalf("[test%d] body expected: %s,actual: %s", i, rt.wantBody, actBody)
+			actBody := w.Body.Bytes()
+			if matched, err := regexp.Match(rt.wantBody, actBody); !matched || err != nil {
+				t.Fatalf("[test%d] body \nexpected: %s,\nactual: %s", i, rt.wantBody, actBody)
 			}
 
 			// authorization

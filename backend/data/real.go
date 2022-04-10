@@ -152,25 +152,25 @@ func (db *DbReal) ReadCreate(username string, read Read) error {
 	return nil
 }
 
-func (db *DbReal) ReadGet(username string) ([]Read, error) {
+func (db *DbReal) ReadGet(username string) ([]ReadWithId, error) {
 	userId, err := db.getUserId(username)
 	if err != nil {
-		return []Read{}, err
+		return []ReadWithId{}, err
 	}
-	rows, err := db.pool.Query(context.Background(), `SELECT ba.book_id,ba.book_name,ba.author_name,r.thoughts,r.read_at
+	rows, err := db.pool.Query(context.Background(), `SELECT r.read_id,ba.book_id,ba.book_name,ba.author_name,r.thoughts,r.read_at
 FROM reads AS r
 INNER JOIN book_author AS ba
 ON r.book_id = ba.book_id 
 WHERE r.user_id = $1`, userId)
 	defer rows.Close()
 
-	resp := make([]Read, 0)
+	resp := make([]ReadWithId, 0)
 	respBookId := make([]string, 0)
 	for rows.Next() {
-		var read Read
+		var read ReadWithId
 		var bookId string
 		var tmp_time time.Time
-		if err := rows.Scan(&bookId, &read.BookName, &read.AuthorName, &read.Thoughts, &tmp_time); err != nil {
+		if err := rows.Scan(&read.ReadId, &bookId, &read.BookName, &read.AuthorName, &read.Thoughts, &tmp_time); err != nil {
 			return nil, err
 		}
 		read.ReadAt = Timef(tmp_time)

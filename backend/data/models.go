@@ -39,8 +39,13 @@ type Read struct {
 	ReadAt     Timef    `json:"readAt"`
 }
 
+type ReadWithId struct {
+	ReadId string `json:"readId"`
+	Read
+}
+
 type Reads struct {
-	Reads []Read `json:"reads"`
+	Reads []ReadWithId `json:"reads"`
 }
 
 type DbUser struct {

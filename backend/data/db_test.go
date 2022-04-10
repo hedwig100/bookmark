@@ -2,10 +2,12 @@ package data_test
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 	"time"
 
 	"github.com/hedwig100/bookmark/backend/data"
+	"github.com/hedwig100/bookmark/backend/slog"
 )
 
 var db data.Db
@@ -147,12 +149,35 @@ func testReadCreate(t *testing.T) {
 	}
 }
 
-func compare[T comparable](a []T, b []T) bool {
-	if len(a) != len(b) {
+// for check Read and ReadWith is the same or not
+func readsEqual(lhs []data.Read, rhs []data.ReadWithId) bool {
+	if len(lhs) != len(rhs) {
 		return false
 	}
-	for i := range a {
-		if a[i] != b[i] {
+	for i := range lhs {
+		if !readEqual(lhs[i], rhs[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+func readEqual(lhs data.Read, rhs data.ReadWithId) bool {
+	if lhs.BookName != rhs.BookName || lhs.AuthorName != rhs.AuthorName ||
+		len(lhs.Genres) != len(rhs.Genres) || lhs.Thoughts != rhs.Thoughts {
+		slog.Info(lhs.BookName, rhs.BookName)
+		slog.Info(lhs.AuthorName, rhs.AuthorName)
+		slog.Info(len(lhs.Genres), len(rhs.Genres))
+		slog.Info(lhs.Thoughts, rhs.Thoughts)
+		return false
+	}
+
+	sort.Slice(lhs.Genres, func(i, j int) bool { return lhs.Genres[i] < lhs.Genres[j] })
+	sort.Slice(rhs.Genres, func(i, j int) bool { return rhs.Genres[i] < rhs.Genres[j] })
+	for i := range lhs.Genres {
+		if lhs.Genres[i] != rhs.Genres[i] {
+			slog.Info(lhs.Genres[i], rhs.Genres[i])
+			slog.Warnf("BBB %v", i)
 			return false
 		}
 	}
@@ -184,6 +209,7 @@ func testReadGet(t *testing.T) {
 					Genres: []string{
 						"fantasy",
 						"for children",
+						"thought-provoking",
 					},
 					Thoughts: "It makes me think seriously.",
 					ReadAt:   data.Timef(time.Now()),
@@ -199,6 +225,7 @@ func testReadGet(t *testing.T) {
 					AuthorName: "Antoine Marie Jean-Baptiste Roger, comte de Saint-Exupery",
 					Genres: []string{
 						"fantasy",
+						"for children",
 						"thought-provoking",
 					},
 					Thoughts: "",
@@ -217,7 +244,9 @@ func testReadGet(t *testing.T) {
 			if !td.expectError && err != nil {
 				t.Fatal(err)
 			}
-			_ = reads
+			if !readsEqual(td.reads, reads) {
+				t.Fatalf("expect: %+v, actual: %+v", td.reads, reads)
+			}
 		})
 	}
 }

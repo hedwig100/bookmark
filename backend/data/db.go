@@ -27,7 +27,7 @@ type Db interface {
 	ReadCreate(string, Read) error
 
 	// ReadGet receives username and return user's reading log
-	ReadGet(string) ([]Read, error)
+	ReadGet(string) ([]ReadWithId, error)
 }
 
 // DbReal connects to a real databaes. The pointer of this object implements Db interface.

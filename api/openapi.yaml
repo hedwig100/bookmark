@@ -151,11 +151,12 @@ paths:
                                     record:
                                         type: array
                                         items:
-                                            $ref: "#/components/schemas/Read"
+                                            $ref: "#/components/schemas/ReadResp"
                             example:
                                 reads:
                                     [
                                         {
+                                            readId: "9109j1lkjof3",
                                             bookName: "Harry Potter",
                                             authorName: "J.K. Rowling",
                                             genres: ["fantasy", "for children"],
@@ -163,6 +164,7 @@ paths:
                                             readAt: "2021-10-30",
                                         },
                                         {
+                                            readId: "fqp91u3jokelf3",
                                             bookName: "A Christmas Carol",
                                             authorName: "Charles Dickens",
                                             genres: ["for children"],
@@ -196,6 +198,28 @@ components:
                 - authorName
                 - readAt
             properties:
+                bookName:
+                    type: string
+                authorName:
+                    type: string
+                genres:
+                    type: array
+                    items:
+                        type: string
+                thoughts:
+                    type: string
+                readAt:
+                    type: string
+                    format: date
+        ReadResp:
+            type: object
+            required:
+                - bookName
+                - authorName
+                - readAt
+            properties:
+                readId:
+                    type: string
                 bookName:
                     type: string
                 authorName:
