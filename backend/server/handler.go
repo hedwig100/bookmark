@@ -167,10 +167,10 @@ func read(w http.ResponseWriter, r *http.Request) {
 
 // /users/:username/books
 // GET
-func readGet(w http.ResponseWriter, r *http.Request) {
+func readsGet(w http.ResponseWriter, r *http.Request) {
 	params := httptreemux.ContextParams(r.Context())
 	username := params["username"]
-	reads, err := Db.ReadGet(username)
+	reads, err := Db.ReadsGet(username)
 	if err != nil {
 		slog.Errf("internal server error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -181,6 +181,41 @@ func readGet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		slog.Errf("internal server error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+	return
+}
+
+// /users/:username/books/:readId
+// GET
+func readGet(w http.ResponseWriter, r *http.Request) {
+	params := httptreemux.ContextParams(r.Context())
+	readId := params["readId"]
+	read, err := Db.ReadGet(readId)
+	if err != nil {
+		if err == data.ErrReadNotFound {
+			respErr(w, http.StatusInternalServerError, 1, "read of the readId not found")
+			return
+		} else if err == data.ErrBookNotFound {
+			respErr(w, http.StatusInternalServerError, 1, "the book information nof found")
+			return
+		} else if err == data.InternalServerError {
+			respErr(w, http.StatusInternalServerError, 1, "internal server error")
+			return
+		} else {
+			slog.Errf("this code must not be reached %v.", err)
+			respErr(w, http.StatusInternalServerError, 1, "internal server error")
+			return
+		}
+	}
+
+	body, err := json.Marshal(read)
+	if err != nil {
+		slog.Errf("internal server error: %v", err)
+		respErr(w, http.StatusInternalServerError, 1, "internal server error")
 		return
 	}
 

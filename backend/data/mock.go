@@ -78,7 +78,7 @@ func (db *DbMock) ReadCreate(username string, read Read) error {
 	return nil
 }
 
-func (db *DbMock) ReadGet(username string) ([]ReadWithId, error) {
+func (db *DbMock) ReadsGet(username string) ([]ReadWithId, error) {
 	user, err := db.selectUsers(username)
 	if err != nil {
 		return nil, err
@@ -103,6 +103,30 @@ func (db *DbMock) ReadGet(username string) ([]ReadWithId, error) {
 		})
 	}
 	return ret, nil
+}
+
+func (db *DbMock) ReadGet(readId string) (Read, error) {
+	var read DbRead
+	for _, candidate := range db.reads {
+		if candidate.ReadId == readId {
+			read = candidate
+			break
+		}
+	}
+	if read.ReadId != readId {
+		return Read{}, ErrReadNotFound
+	}
+	bookName, authorName, genres, err := db.selectBook(read.BookId)
+	if err != nil {
+		return Read{}, ErrBookNotFound
+	}
+	return Read{
+		BookName:   bookName,
+		AuthorName: authorName,
+		Genres:     genres,
+		Thoughts:   read.Thoughts,
+		ReadAt:     read.ReadAt,
+	}, nil
 }
 
 func (db *DbMock) insertAuthor(name string) string {

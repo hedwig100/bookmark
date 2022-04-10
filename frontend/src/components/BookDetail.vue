@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <button @click="submit">send a request</button>
+    <button @click="getBookDetail">send a request</button>
     <p>{{ msg }}</p>
   </div>
 </template>
@@ -19,16 +19,18 @@ export default {
     // this.submit();
   },
   methods: {
-    submit() {
-      console.log("submit /hello request.");
+    getBookDetail() {
+      console.log("submit /users/:username/books/:readId request.");
       client
-        .get("/hello")
+        .get(
+          `/users/${this.$route.params.username}/books/${this.$route.params.readId}`
+        )
         .then((resp) => {
           console.log(resp);
           this.msg = resp.data;
         })
         .catch((err) => {
-          console.log(err);
+          console.log(err.message);
           window.alert(err);
         });
     },

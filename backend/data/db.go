@@ -13,6 +13,8 @@ var (
 	InternalServerError      = fmt.Errorf("internal server error")
 	ErrUserNotFound          = fmt.Errorf("the username is not found.")
 	ErrPasswordInvalid       = fmt.Errorf("the password is invalid.")
+	ErrReadNotFound          = fmt.Errorf("the read record of readId is not found.")
+	ErrBookNotFound          = fmt.Errorf("the book is not found.")
 )
 
 // Db is a interface for representing database connection.
@@ -26,8 +28,11 @@ type Db interface {
 	// ReadCreate receives username,read and return error (if any).
 	ReadCreate(string, Read) error
 
-	// ReadGet receives username and return user's reading log
-	ReadGet(string) ([]ReadWithId, error)
+	// ReadsGet receives username and return user's reading log
+	ReadsGet(string) ([]ReadWithId, error)
+
+	// ReadGet receives readId and return information about the reading.
+	ReadGet(string) (Read, error)
 }
 
 // DbReal connects to a real databaes. The pointer of this object implements Db interface.

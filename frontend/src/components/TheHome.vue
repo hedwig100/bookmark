@@ -52,7 +52,7 @@ export default {
     getBooks() {
       console.log("submit /users/a/books request.");
       client
-        .get("/users/" + this.$route.params.username + "/books")
+        .get(`/users/${this.$route.params.username}/books`)
         .then((resp) => {
           console.log(resp);
           this.msg = resp.data;
@@ -64,7 +64,9 @@ export default {
     },
     toBookDetail(el, read) {
       console.log(read);
-      this.$router.push("/users/books/" + read.readId);
+      this.$router.push(
+        `/users/${this.$route.params.username}/books/${read.readId}`
+      );
     },
   },
 };

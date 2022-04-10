@@ -23,7 +23,7 @@ const routes = [
         component: TheHome
     },
     {
-        path: "/users/books/:readId",
+        path: "/users/:username/books/:readId",
         component: BookDetail
     }
 ]

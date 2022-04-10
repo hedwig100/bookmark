@@ -54,9 +54,9 @@ func testServer(t *testing.T) {
 			wantBody: `{"message":"Invalid user or password.","code":0}`},
 		{name: "loginFailureWithUnregisteredUser", method: "POST", uri: "/login", body: `{"username":"he100","password":"abc45"}`, wantCode: 500,
 			wantBody: `{"message":"Invalid user or password.","code":0}`},
-		{name: "readGet", username: "hedwig100", needJWT: true, method: "GET", uri: "/users/hedwig100/books", wantCode: 200,
+		{name: "readsGet", username: "hedwig100", needJWT: true, method: "GET", uri: "/users/hedwig100/books", wantCode: 200,
 			wantBody: `\{"reads":\[\{"readId":".*","bookName":"Harry Potter","authorName":"J.K.Rowling","genres":\["fantasy","for children"\],"thoughts":"Voldemort scared me a lot.","readAt":"2021-10-30T21:07"\}\]\}`},
-		{name: "readGet", username: "Kate", needJWT: true, method: "GET", uri: "/users/Kate/books", wantCode: 200,
+		{name: "readsGet", username: "Kate", needJWT: true, method: "GET", uri: "/users/Kate/books", wantCode: 200,
 			wantBody: `\{"reads":\[\{"readId":".*","bookName":"Who Moved My Cheese\?","authorName":"Spencer Johnson","genres":\["life"\],"thoughts":"","readAt":"2022-03-29T21:07"\},\{"readId":".*","bookName":"Harry Potter","authorName":"J.K.Rowling","genres":\["fantasy","for children"\],"thoughts":"Very Exciting!","readAt":"2021-10-30T21:07"\}\]\}`},
 	}
 	// maps username to jwt

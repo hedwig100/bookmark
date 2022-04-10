@@ -178,6 +178,42 @@ paths:
                     description: Unauthorized
                 "500":
                     description: Internal Server Error
+    /users/:username/books/:readId:
+        get:
+            tags:
+                - users
+                - books
+            summary: get the user's reading log about the readId
+            description: get the user's reading log about the readId
+            parameters: []
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Read"
+                            example:
+                                {
+                                    bookName: "Harry Potter",
+                                    authorName: "J.K. Rowling",
+                                    genres: ["fantasy", "for children"],
+                                    thoughts: "Voldemort scared me a lot.",
+                                    readAt: "2021-10-30",
+                                }
+                "401":
+                    description: Unauthorized
+                "500":
+                    description: Internal Server Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                            example:
+                                code: 1
+                                message: "database connection failed."
 
 components:
     schemas:

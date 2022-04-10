@@ -18,7 +18,8 @@ func GetMux() http.Handler {
 	mux.POST("/users", middleware.LogWrap(postUser))
 	mux.GET("/auth_test", middleware.LogWrap(middleware.Auth(hello)))
 	mux.POST("/users/:username/books", middleware.LogWrap(middleware.Auth(read)))
-	mux.GET("/users/:username/books", middleware.LogWrap(middleware.Auth(readGet)))
+	mux.GET("/users/:username/books", middleware.LogWrap(middleware.Auth(readsGet)))
+	mux.GET("/users/:username/books/:readId", middleware.LogWrap(middleware.Auth(readGet)))
 	mux.POST("/login", middleware.LogWrap(login))
 	return mux
 }

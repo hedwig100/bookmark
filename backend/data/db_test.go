@@ -21,7 +21,7 @@ func TestDb(t *testing.T) {
 	t.Run("UserCreate", testUserCreate)
 	t.Run("Login", testLogin)
 	t.Run("ReadCreate", testReadCreate)
-	t.Run("ReadGet", testReadGet)
+	t.Run("ReadsGet", testReadsGet)
 }
 
 func testUserCreate(t *testing.T) {
@@ -155,14 +155,14 @@ func readsEqual(lhs []data.Read, rhs []data.ReadWithId) bool {
 		return false
 	}
 	for i := range lhs {
-		if !readEqual(lhs[i], rhs[i]) {
+		if !readEqual(lhs[i], rhs[i].Read) {
 			return false
 		}
 	}
 	return true
 }
 
-func readEqual(lhs data.Read, rhs data.ReadWithId) bool {
+func readEqual(lhs data.Read, rhs data.Read) bool {
 	if lhs.BookName != rhs.BookName || lhs.AuthorName != rhs.AuthorName ||
 		len(lhs.Genres) != len(rhs.Genres) || lhs.Thoughts != rhs.Thoughts {
 		slog.Info(lhs.BookName, rhs.BookName)
@@ -184,8 +184,9 @@ func readEqual(lhs data.Read, rhs data.ReadWithId) bool {
 	return true
 }
 
-func testReadGet(t *testing.T) {
-	rg := []struct {
+func testReadsGet(t *testing.T) {
+	// testdata about ReadsGet
+	rgs := []struct {
 		username    string
 		reads       []data.Read
 		expectError bool
@@ -235,9 +236,18 @@ func testReadGet(t *testing.T) {
 			expectError: false,
 		},
 	}
-	for i, td := range rg {
-		t.Run(fmt.Sprintf("ReadGet%d", i), func(t *testing.T) {
-			reads, err := db.ReadGet(td.username)
+
+	// testdata about ReadGet
+	type ReadGetTest struct {
+		readId      string
+		read        data.Read
+		expectError bool
+	}
+	rg := make([]ReadGetTest, 0, 10)
+
+	for i, td := range rgs {
+		t.Run(fmt.Sprintf("ReadsGet%d", i), func(t *testing.T) {
+			reads, err := db.ReadsGet(td.username)
 			if td.expectError && err == nil {
 				t.Fatal("err expected")
 			}
@@ -246,6 +256,29 @@ func testReadGet(t *testing.T) {
 			}
 			if !readsEqual(td.reads, reads) {
 				t.Fatalf("expect: %+v, actual: %+v", td.reads, reads)
+			}
+
+			for _, read := range reads {
+				rg = append(rg, ReadGetTest{
+					readId:      read.ReadId,
+					read:        read.Read,
+					expectError: false,
+				})
+			}
+		})
+	}
+
+	for i, td := range rg {
+		t.Run(fmt.Sprintf("ReadGet%d", i), func(t *testing.T) {
+			read, err := db.ReadGet(td.readId)
+			if td.expectError && err == nil {
+				t.Fatal("err expected")
+			}
+			if !td.expectError && err != nil {
+				t.Fatal(err)
+			}
+			if !readEqual(td.read, read) {
+				t.Fatalf("expect: %+v, actual: %+v", td.read, read)
 			}
 		})
 	}

@@ -152,7 +152,7 @@ func (db *DbReal) ReadCreate(username string, read Read) error {
 	return nil
 }
 
-func (db *DbReal) ReadGet(username string) ([]ReadWithId, error) {
+func (db *DbReal) ReadsGet(username string) ([]ReadWithId, error) {
 	userId, err := db.getUserId(username)
 	if err != nil {
 		return []ReadWithId{}, err
@@ -179,7 +179,7 @@ WHERE r.user_id = $1`, userId)
 	}
 
 	for i := range resp {
-		rows, err = db.pool.Query(context.Background(), `SELECT (
+		rows, _ = db.pool.Query(context.Background(), `SELECT (
 	g.name
 ) FROM books_genres as bg
 INNER JOIN genres as g ON bg.genre_id = g.genre_id
@@ -195,6 +195,44 @@ WHERE bg.book_id = $1`, respBookId[i])
 	}
 
 	return resp, nil
+}
+
+func (db *DbReal) ReadGet(readId string) (Read, error) {
+
+	var read Read
+	var bookId string
+	var readAt time.Time
+	err := db.pool.QueryRow(context.Background(), `SELECT book_id,thoughts,read_at FROM reads WHERE read_id = $1`, readId).
+		Scan(&bookId, &read.Thoughts, &readAt)
+	if err != nil {
+		slog.Err(err)
+		return Read{}, ErrReadNotFound
+	}
+	read.ReadAt = Timef(readAt)
+
+	err = db.pool.QueryRow(context.Background(), `SELECT book_name,author_name FROM book_author WHERE book_id = $1`, bookId).
+		Scan(&read.BookName, &read.AuthorName)
+	if err != nil {
+		slog.Err(err)
+		return Read{}, ErrBookNotFound
+	}
+
+	rows, _ := db.pool.Query(context.Background(), `SELECT (
+		g.name
+	) FROM books_genres as bg
+	INNER JOIN genres as g ON bg.genre_id = g.genre_id
+	WHERE bg.book_id = $1`, bookId)
+	read.Genres = make([]string, 0)
+	for rows.Next() {
+		var genre string
+		if err := rows.Scan(&genre); err != nil {
+			slog.Err(err)
+			return Read{}, InternalServerError
+		}
+		read.Genres = append(read.Genres, genre)
+	}
+
+	return read, nil
 }
 
 func (db *DbReal) getUserId(username string) (string, error) {
