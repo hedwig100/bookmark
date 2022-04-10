@@ -3,6 +3,7 @@ import LoginPage from './components/LoginPage.vue'
 import HelloWorld from './components/HelloWorld.vue'
 import UserCreate from './components/UserCreate.vue'
 import TheHome from './components/TheHome.vue'
+import BookDetail from './components/BookDetail.vue'
 
 const routes = [
     {
@@ -20,6 +21,10 @@ const routes = [
     {
         path: "/users/:username",
         component: TheHome
+    },
+    {
+        path: "/users/books/:readId",
+        component: BookDetail
     }
 ]
 
